@@ -199,13 +199,21 @@ td{
   <div id="ppResult" style="margin-top:15px;font-size:15px;"></div>
 </div>
 
-<!-- TARGET TENURE TOOL (NEW) -->
+<!-- TARGET TENURE TOOL -->
 <div class="adv-box">
   <h3>Target Tenure Reduction</h3>
   <p><small>*Calculate how much lump sum you need to reduce tenure by X months*</small></p>
   <input type="number" id="targetMonths" placeholder="Reduce tenure by how many months?" style="margin-bottom:10px;width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;">
   <button onclick="calculateRequiredLump()">Calculate Required Lump Sum</button>
   <div id="tenureResult" style="margin-top:15px;font-size:15px;"></div>
+</div>
+
+<!-- NEW TOOL: LUMP SUM TABLE FOR 1-12 MONTHS REDUCTION -->
+<div class="adv-box">
+  <h3>Lump Sum for Tenure Reduction (1-12 Months)</h3>
+  <p><small>*Shows required prepayment to reduce tenure by 1 to 12 months (applied at start)*</small></p>
+  <button onclick="generateLumpSumTable()">Generate Table</button>
+  <div id="lumpSumTable" style="margin-top:15px;"></div>
 </div>
 
 </div>
@@ -251,6 +259,7 @@ function clearAll(){
   document.getElementById('ppResult').innerHTML = "";
   document.getElementById('tenureResult').innerHTML = "";
   document.getElementById('cmpResult').innerHTML = "";
+  document.getElementById('lumpSumTable').innerHTML = "";
   if(pieChart) pieChart.destroy();
   if(balChart) balChart.destroy();
 }
@@ -350,7 +359,7 @@ function compareLoans(){
   document.getElementById('cmpResult').innerHTML = html || "<p>No valid loans to compare.</p>";
 }
 
-// IMPROVED PART PAYMENT CALCULATOR
+// IMPROVED PART PAYMENT CALCULATOR WITH SUGGESTION FOR ADDITIONAL AMOUNT
 function applyPartPayment(){
   let P = +document.getElementById('principal').value;
   let R = +document.getElementById('rate').value / 12 / 100;
@@ -379,6 +388,7 @@ function applyPartPayment(){
     bal -= principalPaid;
     if(bal < 0) bal = 0;
   }
+  let originalBal = bal; // Save for later calculation if needed
   bal -= lump;
   if(bal <= 0){
     document.getElementById("ppResult").innerHTML = "✅ Loan fully paid off with this prepayment!";
@@ -397,7 +407,31 @@ function applyPartPayment(){
     }
     let reduced = (N - atMonth + 1) - months;
     if(reduced <= 0){
-      document.getElementById("ppResult").innerHTML = "❌ Prepayment too small to reduce tenure.<br>Try a larger amount.";
+      // Calculate how much more is needed to reduce by 1 month
+      let targetReduction = 1;
+      let desiredMonths = (N - atMonth + 1) - targetReduction;
+      let low = 0, high = originalBal, additional = originalBal;
+      for(let i = 0; i < 60; i++){
+        let mid = (low + high) / 2;
+        let remaining = originalBal - (lump + mid);
+        let monthsNeeded = 0;
+        let tempBal = remaining;
+        while(tempBal > 0.01 && monthsNeeded < N){
+          let interest = tempBal * R;
+          let principal = Math.min(emi - interest, tempBal);
+          tempBal -= principal;
+          monthsNeeded++;
+        }
+        if(monthsNeeded <= desiredMonths){
+          additional = mid;
+          high = mid;
+        } else {
+          low = mid;
+        }
+      }
+      document.getElementById("ppResult").innerHTML = 
+        `❌ Your prepayment of ₹${lump.toFixed(2)} is too small to reduce tenure.<br>
+         To reduce by at least 1 month, add approximately <strong>₹${additional.toFixed(2)}</strong> more (total prepay: ₹${(lump + additional).toFixed(2)}).`;
     } else {
       document.getElementById("ppResult").innerHTML = 
         `✅ Great! Your tenure will be reduced by <strong>${reduced} month(s)</strong>.<br>
@@ -412,7 +446,7 @@ function applyPartPayment(){
   }
 }
 
-// NEW: Calculate required lump sum to reduce tenure by target months
+// Calculate required lump sum to reduce tenure by target months
 function calculateRequiredLump(){
   let P = +document.getElementById('principal').value;
   let R = +document.getElementById('rate').value / 12 / 100;
@@ -456,6 +490,53 @@ function calculateRequiredLump(){
     `To reduce your loan tenure by <strong>${targetReduction} month(s)</strong>,<br>
      you need to make a one-time prepayment of approximately:<br><br>
      <strong style="font-size:18px;color:#0f62fe;">₹ ${ans.toFixed(2)}</strong>`;
+}
+
+// NEW FUNCTION: Generate table for lump sums to reduce by 1-12 months (assumes prepayment at start, i.e., month 1)
+function generateLumpSumTable(){
+  let P = +document.getElementById('principal').value;
+  let R = +document.getElementById('rate').value / 12 / 100;
+  let N = +document.getElementById('years').value * 12;
+
+  if(P <= 0 || R <= 0 || N <= 0){
+    alert("Please calculate EMI first using the main calculator.");
+    return;
+  }
+
+  if(N < 12){
+    document.getElementById("lumpSumTable").innerHTML = "❌ Loan tenure too short for 1-12 months reduction table.";
+    return;
+  }
+
+  let emi = P * R * Math.pow(1+R, N) / (Math.pow(1+R, N) - 1);
+  let html = `<table style="width:100%; border-collapse:collapse; margin-top:15px;">
+    <tr style="background:#f2f5ff;"><th style="padding:10px;">Reduction (Months)</th><th>Required Lump Sum (₹)</th></tr>`;
+
+  for(let target = 1; target <= 12; target++){
+    let desiredMonths = N - target;
+    let low = 0, high = P, ans = P;
+    for(let i = 0; i < 60; i++){
+      let mid = (low + high) / 2;
+      let remaining = P - mid;
+      let monthsNeeded = 0;
+      let bal = remaining;
+      while(bal > 0.01 && monthsNeeded < N){
+        let interest = bal * R;
+        let principal = Math.min(emi - interest, bal);
+        bal -= principal;
+        monthsNeeded++;
+      }
+      if(monthsNeeded <= desiredMonths){
+        ans = mid;
+        high = mid;
+      } else {
+        low = mid;
+      }
+    }
+    html += `<tr><td style="padding:8px;">${target}</td><td style="padding:8px;">₹${ans.toFixed(2)}</td></tr>`;
+  }
+  html += "</table>";
+  document.getElementById('lumpSumTable').innerHTML = html;
 }
 </script>
 </body>
