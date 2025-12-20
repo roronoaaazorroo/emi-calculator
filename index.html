@@ -2,161 +2,77 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>EMI Calculator - Modern UI</title>
+<title>EMI Calculator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root {
-  --bg: #f3f4f6;
-  --card: #ffffff;
-  --accent: #0f62fe;
-  --muted: #555;
-  --radius: 14px;
-  --shadow: 0 6px 18px rgba(0,0,0,0.08);
-  font-family: "Inter", Arial, sans-serif;
+:root{
+  --bg:#f3f4f6;
+  --card:#fff;
+  --accent:#0f62fe;
+  --muted:#555;
+  --radius:14px;
+  --shadow:0 6px 18px rgba(0,0,0,.08);
+  font-family:Arial, sans-serif;
 }
-body{
-  margin:0;
-  background:var(--bg);
-  color:#111;
-}
-.container{
-  max-width:900px;
-  margin:20px auto;
-  padding:16px;
-}
-h1{
-  text-align:center;
-  font-size:28px;
-  margin-bottom:20px;
-}
-.card{
+body{margin:0;background:var(--bg);}
+.container{max-width:900px;margin:20px auto;padding:16px;}
+h1{text-align:center;}
+.card,.adv-box{
   background:var(--card);
   padding:16px;
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   margin-bottom:18px;
 }
-.form-row{
-  display:flex;
-  flex-direction:column;
-  margin-bottom:12px;
-}
-.form-row label{
-  font-size:13px;
-  color:var(--muted);
-}
-.form-row input, select{
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
+.form-row{margin-bottom:12px;}
+label{font-size:13px;color:var(--muted);}
+input,select{
+  width:100%;padding:10px;
+  border-radius:10px;border:1px solid #ccc;
 }
 button{
+  width:100%;margin-top:10px;
+  padding:12px;border:none;
+  border-radius:10px;
   background:var(--accent);
-  color:#fff;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-size:15px;
-  cursor:pointer;
-  width:100%;
-  margin-top:10px;
+  color:#fff;font-size:15px;
 }
-button.outline{
-  background:#fff;
-  color:var(--accent);
-  border:1px solid var(--accent);
-}
-.results-box{
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:10px;
-}
+button.outline{background:#fff;color:var(--accent);border:1px solid var(--accent);}
+.results-box{display:flex;gap:10px;flex-wrap:wrap;}
 .results-box div{
-  background:#eef4ff;
-  padding:12px;
-  border-radius:10px;
-  width:31%;
-  text-align:center;
+  width:31%;background:#eef4ff;
+  padding:12px;border-radius:10px;text-align:center;
 }
-
 .hidden{display:none;}
-
-.table-wrapper{
-  overflow:auto;
-  max-height:250px;
-  border:1px solid #ddd;
-  margin-top:10px;
-  border-radius:10px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-}
-th{
-  background:#f2f5ff;
-  position:sticky;
-  top:0;
-  padding:8px;
-}
-td{
-  padding:7px;
-  border-bottom:1px dashed #ddd;
-}
-
-/* ADVANCED TOOLS FIXED LAYOUT */
-.adv-box {
-  background: var(--card);
-  padding: 16px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  margin-bottom: 16px;
-}
-
-/* Comparison rows */
-.small-row{
-  display:flex;
-  gap:5px;
-  margin-bottom:8px;
-}
-.small-row input{
-  flex:1;
-  padding:8px;
-  border-radius:10px;
-  border:1px solid #ccc;
-}
-.small-row button{
-  width:auto;
-  background:#ff5252;
-  padding:6px 10px;
-  border-radius:8px;
-}
-
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:7px;border-bottom:1px solid #ddd;}
+th{background:#f2f5ff;position:sticky;top:0;}
+.table-wrapper{max-height:250px;overflow:auto;}
+.small-row{display:flex;gap:6px;margin-bottom:8px;}
+.small-row input{flex:1;}
 </style>
 </head>
-<body>
 
+<body>
 <div class="container">
+
 <h1>EMI Calculator</h1>
 
-<!-- BASIC CALCULATOR -->
+<!-- BASIC -->
 <div class="card">
   <div class="form-row">
     <label>Loan Amount (₹)</label>
-    <input type="number" id="principal" placeholder="e.g., 500000">
+    <input id="principal" type="number">
   </div>
-
   <div class="form-row">
     <label>Interest Rate (%)</label>
-    <input type="number" id="rate" placeholder="e.g., 7.5">
+    <input id="rate" type="number">
   </div>
-
   <div class="form-row">
     <label>Tenure (Years)</label>
-    <input type="number" id="years" placeholder="e.g., 5">
+    <input id="years" type="number">
   </div>
 
   <button onclick="calculateEMI()">Calculate EMI</button>
@@ -165,25 +81,27 @@ td{
 
 <!-- RESULTS -->
 <div id="resultCard" class="card hidden">
-  <h3>Results</h3>
   <div class="results-box">
-    <div><b>EMI</b><br><span id="emi">-</span></div>
-    <div><b>Total Interest</b><br><span id="tInterest">-</span></div>
-    <div><b>Total Payment</b><br><span id="tPay">-</span></div>
+    <div><b>EMI</b><br><span id="emi"></span></div>
+    <div><b>Total Interest</b><br><span id="tInterest"></span></div>
+    <div><b>Total Payment</b><br><span id="tPay"></span></div>
   </div>
 
-  <canvas id="pieChart" height="250"></canvas>
-  <canvas id="balChart" height="250" style="margin-top:20px;"></canvas>
+  <canvas id="pieChart"></canvas>
+  <canvas id="balChart" style="margin-top:20px;"></canvas>
 
   <h3>Amortization Schedule</h3>
-  <div class="table-wrapper"><table>
-    <thead><tr><th>Month</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
-    <tbody id="scheduleBody"></tbody>
-  </table></div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Month</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>
+      </thead>
+      <tbody id="scheduleBody"></tbody>
+    </table>
+  </div>
 </div>
 
-<!-- ADVANCED TOOLS -->
-<h2 style="margin-top:25px;">Advanced Tools</h2>
+<h2>Advanced Tools</h2>
 
 <!-- LOAN COMPARISON -->
 <div class="adv-box">
@@ -191,9 +109,9 @@ td{
   <div id="cmpContainer">
     <div class="small-row">
       <input placeholder="Label">
-      <input placeholder="Principal" type="number">
-      <input placeholder="Rate (%)" type="number">
-      <input placeholder="Years" type="number">
+      <input type="number" placeholder="Principal">
+      <input type="number" placeholder="Rate">
+      <input type="number" placeholder="Years">
     </div>
   </div>
   <button onclick="addLoanRow()">+ Add Loan</button>
@@ -204,187 +122,148 @@ td{
 <!-- PART PAYMENT -->
 <div class="adv-box">
   <h3>Part Payment</h3>
-  <input type="number" id="pp_amount" placeholder="Lump Amount (₹)" style="margin-bottom:10px;">
-  <input type="number" id="pp_month" placeholder="Apply at Month" style="margin-bottom:10px;">
-  <select id="pp_option" style="padding:10px;border-radius:10px;width:100%;">
+  <input id="pp_amount" type="number" placeholder="Lump Sum Amount">
+  <input id="pp_month" type="number" placeholder="Apply at Month">
+  <select id="pp_option">
     <option value="tenure">Reduce Tenure</option>
     <option value="emi">Reduce EMI</option>
   </select>
-  <button onclick="applyPartPayment()">Apply Part Payment</button>
+  <button onclick="applyPartPayment()">Apply</button>
   <div id="ppResult"></div>
+</div>
+
+<!-- TENURE REDUCTION TOOL -->
+<div class="adv-box">
+  <h3>Reduce Tenure by X Months</h3>
+  <input id="targetMonths" type="number" placeholder="Months to reduce (1–12)">
+  <button onclick="calculateRequiredLump()">Calculate Required Amount</button>
+  <div id="tenureResult"></div>
 </div>
 
 </div>
 
 <script>
+let pieChart, balChart;
 
-// EMI CALCULATION
 function calculateEMI(){
-  let P = +document.getElementById('principal').value;
-  let R = +document.getElementById('rate').value / 12 / 100;
-  let N = +document.getElementById('years').value * 12;
+  let P=+principal.value;
+  let R=+rate.value/12/100;
+  let N=+years.value*12;
+  if(P<=0||N<=0){alert("Enter valid values");return;}
 
-  if(P<=0 || N<=0){
-    alert("Enter valid values");
-    return;
-  }
-  let emi = P * R * Math.pow((1+R), N) / (Math.pow((1+R),N)-1);
+  let emi=P*R*Math.pow(1+R,N)/(Math.pow(1+R,N)-1);
+  let total=emi*N, interest=total-P;
 
-  let totalPayment = emi * N;
-  let totalInterest = totalPayment - P;
-
-  document.getElementById('emi').innerText = "₹ " + emi.toFixed(2);
-  document.getElementById('tInterest').innerText = "₹ " + totalInterest.toFixed(2);
-  document.getElementById('tPay').innerText = "₹ " + totalPayment.toFixed(2);
+  emiEl.innerText="₹"+emi.toFixed(2);
+  tInterest.innerText="₹"+interest.toFixed(2);
+  tPay.innerText="₹"+total.toFixed(2);
 
   generateSchedule(P,R,N,emi);
-  generatePie(P, totalInterest);
-  generateBalanceChart(P,R,N,emi);
+  drawCharts(P,interest,emi,R,N);
 
-  document.getElementById('resultCard').classList.remove('hidden');
+  resultCard.classList.remove("hidden");
 }
 
-// CLEAR
-function clearAll(){
-  document.getElementById('principal').value="";
-  document.getElementById('rate').value="";
-  document.getElementById('years').value="";
-  document.getElementById('resultCard').classList.add('hidden');
-}
+function clearAll(){location.reload();}
 
-// AMORTIZATION SCHEDULE
 function generateSchedule(P,R,N,emi){
-  let body = document.getElementById('scheduleBody');
-  body.innerHTML = "";
-  let balance = P;
-  for(let m=1; m<=N; m++){
-    let interest = balance * R;
-    let principal = emi - interest;
-    balance -= principal;
-    if(balance<0) balance=0;
-
-    body.innerHTML += `<tr>
-      <td>${m}</td>
-      <td>${emi.toFixed(2)}</td>
-      <td>${principal.toFixed(2)}</td>
-      <td>${interest.toFixed(2)}</td>
-      <td>${balance.toFixed(2)}</td>
-    </tr>`;
+  let bal=P, body="";
+  for(let m=1;m<=N;m++){
+    let i=bal*R;
+    let p=emi-i;
+    bal-=p;
+    body+=`<tr><td>${m}</td><td>${emi.toFixed(2)}</td>
+    <td>${p.toFixed(2)}</td><td>${i.toFixed(2)}</td>
+    <td>${bal.toFixed(2)}</td></tr>`;
   }
+  scheduleBody.innerHTML=body;
 }
 
-// PIE CHART
-function generatePie(principal, interest){
-  new Chart(document.getElementById('pieChart'), {
-    type:'pie',
-    data:{
-      labels:['Principal','Interest'],
-      datasets:[{ data:[principal,interest] }]
-    }
+function drawCharts(P,I,emi,R,N){
+  if(pieChart) pieChart.destroy();
+  pieChart=new Chart(pieChartEl,{type:'pie',
+    data:{labels:['Principal','Interest'],datasets:[{data:[P,I]}]}
+  });
+
+  let bal=P, arr=[];
+  for(let i=0;i<N;i++){
+    let inr=bal*R;
+    bal-=emi-inr;
+    arr.push(bal);
+  }
+  if(balChart) balChart.destroy();
+  balChart=new Chart(balChartEl,{type:'line',
+    data:{labels:arr.map((_,i)=>i+1),datasets:[{data:arr,label:'Balance'}]}
   });
 }
 
-// BALANCE CHART
-function generateBalanceChart(P,R,N,emi){
-  let balance = P, arr=[];
-  for(let m=1; m<=N; m++){
-    let interest = balance * R;
-    let principal = emi - interest;
-    balance -= principal;
-    arr.push(balance);
-  }
-
-  new Chart(document.getElementById('balChart'), {
-    type:'line',
-    data:{
-      labels: arr.map((_,i)=>"M"+(i+1)),
-      datasets:[{
-        label:"Balance",
-        data:arr,
-        fill:false,
-        tension:0.2
-      }]
-    }
-  });
-}
-
-// ADD LOAN ROW
 function addLoanRow(){
-  document.getElementById('cmpContainer').innerHTML += `
-    <div class="small-row">
-      <input placeholder="Label">
-      <input placeholder="Principal" type="number">
-      <input placeholder="Rate (%)" type="number">
-      <input placeholder="Years" type="number">
-    </div>`;
+  cmpContainer.innerHTML+=`
+  <div class="small-row">
+    <input placeholder="Label">
+    <input type="number">
+    <input type="number">
+    <input type="number">
+  </div>`;
 }
 
-// COMPARE LOANS
 function compareLoans(){
-  let rows = document.querySelectorAll("#cmpContainer .small-row");
-  let result = "<table border=1 style='width:100%;margin-top:10px;'><tr><th>Label</th><th>EMI</th><th>Total Interest</th></tr>";
-
+  let rows=document.querySelectorAll(".small-row");
+  let html="<table><tr><th>Loan</th><th>EMI</th><th>Interest</th></tr>";
   rows.forEach(r=>{
-    let label = r.children[0].value || "Loan";
-    let P = +r.children[1].value;
-    let R = +r.children[2].value / 12 / 100;
-    let N = +r.children[3].value * 12;
-
-    if(P>0 && N>0){
-      let emi = P * R * Math.pow((1+R),N) / (Math.pow((1+R),N)-1);
-      let totalInterest = emi*N - P;
-      result += `<tr><td>${label}</td><td>₹${emi.toFixed(2)}</td><td>₹${totalInterest.toFixed(2)}</td></tr>`;
+    let P=+r.children[1].value;
+    let R=+r.children[2].value/12/100;
+    let N=+r.children[3].value*12;
+    if(P>0&&N>0){
+      let emi=P*R*Math.pow(1+R,N)/(Math.pow(1+R,N)-1);
+      html+=`<tr><td>${r.children[0].value}</td>
+      <td>${emi.toFixed(2)}</td>
+      <td>${(emi*N-P).toFixed(2)}</td></tr>`;
     }
   });
-  result += "</table>";
-
-  document.getElementById("cmpResult").innerHTML = result;
+  cmpResult.innerHTML=html+"</table>";
 }
 
-// PART PAYMENT FEATURE
 function applyPartPayment(){
-  let P = +document.getElementById('principal').value;
-  let R = +document.getElementById('rate').value/12/100;
-  let N = +document.getElementById('years').value*12;
-  let emi = P * R * Math.pow((1+R),N) / (Math.pow((1+R),N)-1);
+  let P=+principal.value,R=+rate.value/12/100,N=+years.value*12;
+  let emi=P*R*Math.pow(1+R,N)/(Math.pow(1+R,N)-1);
+  let lump=+pp_amount.value,month=+pp_month.value;
+  let bal=P;
+  for(let i=1;i<month;i++) bal-=emi-bal*R;
+  bal-=lump;
 
-  let lump = +document.getElementById('pp_amount').value;
-  let atMonth = +document.getElementById('pp_month').value;
-  let option = document.getElementById('pp_option').value;
-
-  if(lump<=0){ alert("Enter valid lump-sum"); return; }
-
-  let balance = P;
-  for(let i=1;i<atMonth;i++){
-    let interest = balance*R;
-    let principal = emi - interest;
-    balance -= principal;
+  let months=0,temp=bal;
+  while(temp>0){
+    temp-=emi-temp*R;
+    months++;
   }
-
-  balance -= lump;
-
-  let msg="";
-  if(option=="tenure"){
-    let months=0;
-    while(balance>0){
-      let interest=balance*R;
-      let principal=emi-interest;
-      if(principal<=0) break;
-      balance-=principal;
-      months++;
-    }
-    msg = "Your tenure reduces by " + (N-atMonth-months) + " months.";
-  }
-  else{
-    let remain=N-atMonth;
-    let newEMI = balance*R*Math.pow((1+R),remain)/(Math.pow((1+R),remain)-1);
-    msg = "Your new EMI is ₹ " + newEMI.toFixed(2);
-  }
-
-  document.getElementById("ppResult").innerHTML = "<p>"+msg+"</p>";
+  let reduced=N-month-months;
+  if(reduced<=0)
+    ppResult.innerHTML="Amount too small. Increase lump sum.";
+  else
+    ppResult.innerHTML="Tenure reduced by "+reduced+" months";
 }
 
+function calculateRequiredLump(){
+  let P=+principal.value,R=+rate.value/12/100,N=+years.value*12;
+  let target=+targetMonths.value;
+  let emi=P*R*Math.pow(1+R,N)/(Math.pow(1+R,N)-1);
+
+  let low=0,high=P,ans=P;
+  for(let i=0;i<40;i++){
+    let mid=(low+high)/2;
+    let bal=P-mid,months=0;
+    while(bal>0){
+      bal-=emi-bal*R;months++;
+    }
+    if(N-months>=target){ans=mid;high=mid;}
+    else low=mid;
+  }
+  tenureResult.innerHTML="Required lump sum: ₹"+ans.toFixed(2);
+}
 </script>
 
 </body>
 </html>
+
+
